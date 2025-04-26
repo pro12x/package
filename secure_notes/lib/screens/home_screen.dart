@@ -32,6 +32,30 @@ class _HomeScreenState extends State<HomeScreen> {
     _refreshNotes();
   }
 
+  void _confirmDeleteAll() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete All Notes'),
+        content: Text('Are you sure you want to delete all notes?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _dbHelper.deleteAllNotes();
+              Navigator.pop(context);
+              _refreshNotes();
+            },
+            child: Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _reorderNotes(int oldIndex, int newIndex) {
     setState(() {
       if (newIndex > oldIndex) newIndex -= 1;
@@ -45,6 +69,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Secure Notes'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete_forever),
+            onPressed: _confirmDeleteAll,
+          ),
+        ],
       ),
       body: ReorderableListView(
         onReorder: _reorderNotes,
